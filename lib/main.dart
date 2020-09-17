@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import './widgets/transactionList.dart';
 import './widgets/new_transaction.dart';
+import './widgets/chart.dart';
 
 import "./models/transaction.dart";
 
@@ -11,7 +12,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
+      title: 'Personal Expenses',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        fontFamily: 'Quicksand',
+        textTheme: ThemeData.light().textTheme.copyWith(
+                title: TextStyle(
+              fontFamily: 'OpenSans',
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            )),
+        appBarTheme: AppBarTheme(
+            textTheme: ThemeData.light().textTheme.copyWith(
+                title: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold))),
+      ),
       home: MyHomePage(),
     );
   }
@@ -24,10 +41,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _userTransaction = [
-    Transaction(
-        id: 't1', title: "New Shoe", amount: 10000.00, date: DateTime.now()),
-    Transaction(id: 't2', title: "Milk", amount: 1200.00, date: DateTime.now())
+    // Transaction(
+    //     id: 't1', title: "New Shoe", amount: 10000.00, date: DateTime.now()),
+    // Transaction(id: 't2', title: "Milk", amount: 1200.00, date: DateTime.now())
   ];
+
+//get  all recent transaction
+  List<Transaction> get _recentTransactions {
+    return _userTransaction.where((tx) {
+      return tx.date.isAfter(DateTime.now().subtract(Duration(days: 7)));
+    }).toList();
+  }
 
   void _addNewTransaction(String txTitle, double txAmount) {
     final newTx = Transaction(
@@ -58,14 +82,17 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter App'),
+        title: Text(
+          'Personal Expenses',
+          style: TextStyle(fontFamily: 'Open Sans'),
+        ),
         actions: <Widget>[
           IconButton(
               icon: Icon(
                 Icons.add,
                 color: Colors.white,
               ),
-              onPressed: null)
+              onPressed: () => startAddNewTransaction(context))
         ],
       ),
       body: SingleChildScrollView(
@@ -73,15 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
             // mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Container(
-                width: double.infinity,
-                child: Card(
-                  color: Colors.blue,
-                  child: Text('CHART!!'),
-                  elevation: 5,
-                ),
-              ),
-              TransactionList(_userTransaction)
+              Chart(_recentTransactions), //chart
+              TransactionList(_userTransaction), //transaction
             ]),
       ),
       floatingActionButton: FloatingActionButton(
